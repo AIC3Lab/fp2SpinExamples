@@ -1,0 +1,238 @@
+MODULE ALU(event_REQ, event_CNF, A_, B_, RES_, alpha, beta)
+VAR _A : 0..99;
+VAR B : 0..99;
+VAR RES : 0..99;
+VAR S_smv : {s0_osm, s1_osm, s2_osm};
+VAR Q_smv : {START_ecc, NormalOp_ecc};
+
+VAR NA: 0..1;
+VAR NI: 0..1;
+
+ASSIGN
+init(Q_smv):= START_ecc;
+init(S_smv):= s0_osm;
+-- _moduleVariablesInitBlock
+init(_A):= 0;
+init(B):= 0;
+init(RES):= 0;
+
+init(NA):= 0;
+init(NI):= 0;
+
+next(Q_smv):= case
+	Q_smv=START_ecc & S_smv=s1_osm & event_REQ : NormalOp_ecc;
+	Q_smv=NormalOp_ecc & S_smv=s1_osm : START_ecc;
+	TRUE : Q_smv;
+esac;
+
+next(S_smv):= case
+	alpha & S_smv=s0_osm & ExistsInputEvent: s1_osm;
+	S_smv=s1_osm & ExistsEnabledECTran: s2_osm;
+	S_smv=s2_osm & NA=0 : s1_osm;
+	S_smv=s1_osm & (!ExistsEnabledECTran): s0_osm;
+	TRUE : S_smv;
+esac;
+
+next(NA):= case
+	S_smv=s1_osm: 1;
+	S_smv=s2_osm & NI=0 & ((Q_smv=START_ecc & NA < 1) | (Q_smv=NormalOp_ecc & NA < 1)): (NA + 1) mod 2;
+	S_smv=s2_osm & NI=0 & ((Q_smv=START_ecc & NA = 1) | (Q_smv=NormalOp_ecc & NA = 1)):  0 ;
+	TRUE : NA;
+esac;
+
+next(NI):= case
+	S_smv=s1_osm: 1;
+	S_smv=s2_osm & ((Q_smv=START_ecc & NA = 1 & NI < 1) | (Q_smv=NormalOp_ecc & NA = 1 & NI < 1)):(NI + 1) mod 2;
+	S_smv=s2_osm & ((Q_smv=START_ecc & NA = 1 & NI = 1) | (Q_smv=NormalOp_ecc & NA = 1 & NI = 1)): 0 ;
+	TRUE : NI;
+esac;
+
+next(_A):= case
+	alpha & S_smv=s0_osm & (event_REQ) : A_ ;
+	TRUE : _A;
+esac;
+next(B):= case
+	alpha & S_smv=s0_osm : B_ ;
+	TRUE : B;
+esac;
+
+next(RES):= case
+	S_smv=s2_osm & Q_smv=NormalOp_ecc & NA=1 & NI=1 : (((_A + B - 49) mod 50) + 49);
+	TRUE : RES;
+esac;
+
+next(RES_):= case
+S_smv=s2_osm & NI=0 & ((Q_smv=NormalOp_ecc & NA=1)) : RES;
+	TRUE : RES_;
+esac;
+
+DEFINE alpha_reset:= 	(alpha & S_smv=s0_osm & !ExistsInputEvent | S_smv=s1_osm & (!ExistsEnabledECTran));
+DEFINE beta_set:= 	(alpha & S_smv=s0_osm & !ExistsInputEvent | S_smv=s1_osm & (!ExistsEnabledECTran));
+
+DEFINE event_REQ_reset:= 	S_smv=s1_osm;
+
+DEFINE event_CNF_set:= 	S_smv=s2_osm & NI=0 & ((Q_smv=NormalOp_ecc & NA=1));
+
+DEFINE ExistsInputEvent:= event_REQ;
+DEFINE ExistsEnabledECTran:= (Q_smv=START_ecc  & ((event_REQ))) | (Q_smv=NormalOp_ecc);
+
+
+FAIRNESS (alpha)
+FAIRNESS (beta)
+
+
+MODULE Performance2(event_REQ, event_CNF, RES_, alpha, beta)
+VAR ALU_2 : ALU (ALU_2_REQ, ALU_2_CNF, ALU_1_RES, ALU_2_B, ALU_2_RES, ALU_2_alpha, ALU_2_beta);
+VAR ALU_1 : ALU (ALU_1_REQ, ALU_1_CNF, ALU_1_A, ALU_1_B, ALU_1_RES, ALU_1_alpha, ALU_1_beta);
+
+VAR ALU_2_REQ : boolean;
+VAR ALU_2_CNF : boolean;
+VAR ALU_2_B : 0..99;
+VAR ALU_2_RES : 0..99;
+VAR ALU_2_alpha : boolean;
+VAR ALU_2_beta : boolean;
+
+VAR ALU_1_REQ : boolean;
+VAR ALU_1_CNF : boolean;
+VAR ALU_1_A : 0..99;
+VAR ALU_1_B : 0..99;
+VAR ALU_1_RES : 0..99;
+VAR ALU_1_alpha : boolean;
+VAR ALU_1_beta : boolean;
+
+
+
+ASSIGN
+init(ALU_2_REQ):= FALSE;
+init(ALU_2_CNF):= FALSE;
+init(ALU_2_B):= 1;
+init(ALU_2_RES):= 0;
+init(ALU_2_alpha):= FALSE;
+init(ALU_2_beta):= FALSE;
+
+init(ALU_1_REQ):= FALSE;
+init(ALU_1_CNF):= FALSE;
+init(ALU_1_A):= 0;
+init(ALU_1_B):= 1;
+init(ALU_1_RES):= 0;
+init(ALU_1_alpha):= FALSE;
+init(ALU_1_beta):= FALSE;
+
+
+next(ALU_2_B) := ALU_2_B;
+next(ALU_1_A) := ALU_1_A;
+next(ALU_1_B) := ALU_1_B;
+-- _internalDataConnections
+next(RES_):= case
+	(ALU_2_CNF) : ALU_2_RES;
+	TRUE : RES_;
+esac;
+
+
+-- ComponentEventOutputs
+next(ALU_2_CNF):= case
+	ALU_2.event_CNF_set : TRUE;
+	TRUE : FALSE;
+esac;
+next(ALU_1_CNF):= case
+	ALU_1.event_CNF_set : TRUE;
+	TRUE : FALSE;
+esac;
+
+
+-- ---DISPATCHER--- --
+-- *************** --
+next(ALU_2_alpha):= case
+	alpha & omega & !ExistsInputEvent : TRUE;
+	ALU_2.alpha_reset : FALSE;
+	TRUE : ALU_2_alpha;
+esac;
+next(ALU_2_beta):= case
+	ALU_2_beta & omega : FALSE;
+	ALU_2.beta_set : TRUE;
+	TRUE : ALU_2_beta;
+esac;
+next(ALU_1_alpha):= case
+	ALU_2_beta & omega : TRUE;
+	ALU_1.alpha_reset : FALSE;
+	TRUE : ALU_1_alpha;
+esac;
+next(ALU_1_beta):= case
+	ALU_1_beta & omega : FALSE;
+	ALU_1.beta_set : TRUE;
+	TRUE : ALU_1_beta;
+esac;
+DEFINE beta_set:= ALU_1_beta & omega;
+DEFINE alpha_reset:= alpha & omega & !ExistsInputEvent;
+
+ASSIGN
+
+
+-- _internalEventConnections
+next(ALU_1_REQ):= case
+	((event_REQ & alpha)) : TRUE;
+	(ALU_1.event_REQ_reset) : FALSE;
+	TRUE : ALU_1_REQ;
+esac;
+
+next(ALU_2_REQ):= case
+	(ALU_1_CNF) : TRUE;
+	(ALU_2.event_REQ_reset) : FALSE;
+	TRUE : ALU_2_REQ;
+esac;
+
+DEFINE event_CNF_set:= 	(ALU_2_CNF);
+
+DEFINE event_REQ_reset:= alpha;
+DEFINE ExistsInputEvent:= event_REQ;
+
+DEFINE omega:= !ALU_2_CNF | !ALU_1_CNF;
+
+FAIRNESS (alpha)
+FAIRNESS (beta)
+
+
+MODULE main()
+VAR Performance2_inst : Performance2 (Performance2_inst_REQ, Performance2_inst_CNF, Performance2_inst_RES, Performance2_inst_alpha, Performance2_inst_beta);
+
+VAR Performance2_inst_REQ : boolean;
+VAR Performance2_inst_CNF : boolean;
+VAR Performance2_inst_RES : 0..99;
+VAR Performance2_inst_alpha : boolean;
+VAR Performance2_inst_beta : boolean;
+
+
+VAR false_var : boolean;
+
+ASSIGN
+init(false_var):= FALSE;
+next(false_var) := FALSE;
+init(Performance2_inst_REQ):= TRUE;
+init(Performance2_inst_CNF):= FALSE;
+init(Performance2_inst_RES):= 0;
+
+
+init(Performance2_inst_alpha):= TRUE;
+init(Performance2_inst_beta):= FALSE;
+next(Performance2_inst_REQ):= case
+Performance2_inst.event_REQ_reset : FALSE;
+	TRUE : Performance2_inst_REQ;
+esac;
+next(Performance2_inst_CNF):= case
+Performance2_inst.event_CNF_set : TRUE;
+	TRUE : Performance2_inst_CNF;
+esac;
+next(Performance2_inst_alpha):= case
+	Performance2_inst_beta : TRUE;
+	Performance2_inst.alpha_reset : FALSE;
+	TRUE : Performance2_inst_alpha;
+esac;
+next(Performance2_inst_beta):= case
+	Performance2_inst_beta : FALSE;
+	Performance2_inst.beta_set : TRUE;
+	TRUE : Performance2_inst_beta;
+esac;
+
+--LTLSPEC F false_var=TRUE
+--LTLSPEC F (Performance2_inst_CNF=TRUE)
+LTLSPEC F (Performance2_inst_CNF=TRUE & Performance2_inst_RES = 2)
