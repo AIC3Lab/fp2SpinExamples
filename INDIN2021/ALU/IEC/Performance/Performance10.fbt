@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FBType Name="Performance10" Comment="Composite Function Block Type">
+	<Identification Standard="61499-2">
+	</Identification>
+	<VersionInfo Version="1.0" Author="jetbrains" Date="2020-12-26">
+	</VersionInfo>
+	<InterfaceList>
+		<EventInputs>
+			<Event Name="REQ" Type="Event" Comment="Normal Execution Request">
+			</Event>
+		</EventInputs>
+		<EventOutputs>
+			<Event Name="CNF" Type="Event" Comment="Execution Confirmation">
+				<With Var="RES"/>
+			</Event>
+		</EventOutputs>
+		<OutputVars>
+			<VarDeclaration Name="RES" Type="DINT" Comment="Output event qualifier"/>
+		</OutputVars>
+	</InterfaceList>
+	<FBNetwork>
+		<FB Name="ALU_1" Type="ALU" Comment="" x="571.4285714285713" y="142.85714285714283">
+			<Parameter Name="A" Value="0"/>
+			<Parameter Name="B" Value="1"/>
+		</FB>
+		<FB Name="ALU_2" Type="ALU" Comment="" x="1285.7142857142856" y="142.85714285714283">
+			<Parameter Name="B" Value="1"/>
+		</FB>
+		<FB Name="ALU_3" Type="ALU" Comment="" x="1999.9999999999998" y="142.85714285714283">
+			<Parameter Name="B" Value="1"/>
+		</FB>
+		<FB Name="ALU_4" Type="ALU" Comment="" x="2714.285714285714" y="142.85714285714283">
+			<Parameter Name="B" Value="1"/>
+		</FB>
+		<FB Name="ALU_5" Type="ALU" Comment="" x="3428.5714285714284" y="285.71428571428567">
+			<Parameter Name="B" Value="1"/>
+		</FB>
+		<FB Name="ALU_9" Type="ALU" Comment="" x="2714.285714285714" y="1285.7142857142856">
+			<Parameter Name="B" Value="1"/>
+		</FB>
+		<FB Name="ALU_8" Type="ALU" Comment="" x="1999.9999999999998" y="1285.7142857142856">
+			<Parameter Name="B" Value="1"/>
+		</FB>
+		<FB Name="ALU_10" Type="ALU" Comment="" x="3428.5714285714284" y="1285.7142857142856">
+			<Parameter Name="B" Value="1"/>
+		</FB>
+		<FB Name="ALU_7" Type="ALU" Comment="" x="1285.7142857142856" y="1285.7142857142856">
+			<Parameter Name="B" Value="1"/>
+		</FB>
+		<FB Name="ALU_6" Type="ALU" Comment="" x="571.4285714285713" y="1285.7142857142856">
+			<Parameter Name="B" Value="1"/>
+		</FB>
+		<EventConnections>
+			<Connection Source="REQ" Destination="ALU_1.SUM" Comment="" dx1="171.42857142857142"/>
+			<Connection Source="ALU_1.CNF" Destination="ALU_2.SUM" Comment=""/>
+			<Connection Source="ALU_2.CNF" Destination="ALU_3.SUM" Comment=""/>
+			<Connection Source="ALU_3.CNF" Destination="ALU_4.SUM" Comment=""/>
+			<Connection Source="ALU_4.CNF" Destination="ALU_5.SUM" Comment="" dx1="107.14285714285714"/>
+			<Connection Source="ALU_6.CNF" Destination="ALU_7.SUM" Comment=""/>
+			<Connection Source="ALU_10.CNF" Destination="CNF" Comment="" dx1="557.1428571428571"/>
+			<Connection Source="ALU_7.CNF" Destination="ALU_8.SUM" Comment=""/>
+			<Connection Source="ALU_8.CNF" Destination="ALU_9.SUM" Comment=""/>
+			<Connection Source="ALU_9.CNF" Destination="ALU_10.SUM" Comment=""/>
+			<Connection Source="REQ" Destination="ALU_1.SUM" Comment="" dx1="171.42857142857142"/>
+			<Connection Source="ALU_5.CNF" Destination="ALU_6.SUM" Comment="" dx1="-3442.8571428571427"/>
+		</EventConnections>
+		<DataConnections>
+			<Connection Source="ALU_1.RES" Destination="ALU_2.A" Comment="" dx1="99.99999999999999"/>
+			<Connection Source="ALU_2.RES" Destination="ALU_3.A" Comment="" dx1="85.71428571428571" dx2="85.71428571428571" dy="0.0"/>
+			<Connection Source="ALU_3.RES" Destination="ALU_4.A" Comment="" dx1="85.71428571428571" dx2="85.71428571428571" dy="-49.99999999999999"/>
+			<Connection Source="ALU_4.RES" Destination="ALU_5.A" Comment="" dx1="85.71428571428571" dx2="85.71428571428571" dy="-49.99999999999999"/>
+			<Connection Source="ALU_8.RES" Destination="ALU_9.A" Comment="" dx1="85.71428571428571" dx2="85.71428571428571" dy="-49.99999999999999"/>
+			<Connection Source="ALU_6.RES" Destination="ALU_7.A" Comment="" dx1="99.99999999999999"/>
+			<Connection Source="ALU_7.RES" Destination="ALU_8.A" Comment="" dx1="85.71428571428571" dx2="85.71428571428571" dy="0.0"/>
+			<Connection Source="ALU_9.RES" Destination="ALU_10.A" Comment="" dx1="85.71428571428571" dx2="85.71428571428571" dy="-49.99999999999999"/>
+			<Connection Source="ALU_5.RES" Destination="ALU_6.A" Comment="" dx1="-3442.8571428571427"/>
+			<Connection Source="ALU_10.RES" Destination="RES" Comment="" dx1="1407.142857142857"/>
+		</DataConnections>
+	</FBNetwork>
+</FBType>

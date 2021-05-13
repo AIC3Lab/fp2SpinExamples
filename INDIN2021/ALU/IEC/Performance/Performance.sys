@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE System SYSTEM "http://www.holobloc.com/xml/LibraryElement.dtd">
+<System Comment="" Name="Performance">
+  <VersionInfo Author="Author" Organization="Eclipse 4diac" Version="1.0"/>
+  <Application Comment="" Name="PerformanceApp">
+    <SubAppNetwork>
+      <FB Comment="" Name="ALU" Type="ALU" x="1500.0" y="400.0">
+        <Parameter Name="A" Value="1"/>
+        <Parameter Name="B" Value="2"/>
+      </FB>
+      <FB Comment="" Name="ALU_2" Type="ALU" x="2200.0" y="400.0">
+        <Parameter Name="B" Value="1"/>
+      </FB>
+      <DataConnections>
+        <Connection Comment="" Destination="ALU_2.A" Source="ALU.RES"/>
+      </DataConnections>
+      <EventConnections>
+        <Connection Comment="" Destination="ALU_2.INIT" Source="ALU.INITO"/>
+        <Connection Comment="" Destination="ALU_2.REQ" Source="ALU.CNF"/>
+      </EventConnections>
+    </SubAppNetwork>
+  </Application>
+</System>
